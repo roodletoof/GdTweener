@@ -401,16 +401,16 @@ func inBounceOutElastic(t: float) -> float:
 	return __inout(t, 'inBounce', 'outElastic')
 
 ## list of all active cTweens
-var active_cTweens := []
+var active_gdTweens := []
 
 ## Object that keeps track of object values and changes them according to time passed.
-class cTween:
+class gdTween:
 	var object: WeakRef
 	var curr_time := 0.0
 	var target_time: float
 	var end_values: Dictionary
 	var start_values: Dictionary
-	var lib: cTweener
+	var lib: gdTweener
 	var ease_type := 'outQuad'
 	var delete := false
 	var _delay := 0.0
@@ -419,7 +419,7 @@ class cTween:
 	var on_update_funcRefs := []
 	var on_complete_funcRefs := []
 	
-	func _init(obj: Object, seconds: float, key_values: Dictionary, library: cTweener):
+	func _init(obj: Object, seconds: float, key_values: Dictionary, library: gdTweener):
 		self.object = weakref(obj)
 		self.target_time = seconds
 		self.end_values = key_values
@@ -437,14 +437,14 @@ class cTween:
 	## Add a function reference that will be called when this tween starts.
 	## The function will be called with no arguments.
 	## Returns self.
-	func onStart(function: FuncRef) -> cTween:
+	func onStart(function: FuncRef) -> gdTween:
 		self.on_start_funcRefs.append(function)
 		return self
 	
 	## Add a function reference that will be called once per update.
 	## The function will be called with the 'dt' argument.
 	## Returns self.
-	func onUpdate(function: FuncRef) -> cTween:
+	func onUpdate(function: FuncRef) -> gdTween:
 		self.on_update_funcRefs.append(function)
 		return self
 	
@@ -452,31 +452,31 @@ class cTween:
 	## No functions will be called if this twen is stopped.
 	## The function will be called with no arguments.
 	## Returns self.
-	func onComplete(function: FuncRef) -> cTween:
+	func onComplete(function: FuncRef) -> gdTween:
 		self.on_complete_funcRefs.append(function)
 		return self
 	
 	## Set the easing function used for this tween.
 	## The default is 'outQuad'
 	## Returns self.
-	func ease(ease_function_name: String) -> cTween:
+	func ease(ease_function_name: String) -> gdTween:
 		self.ease_type = ease_function_name
 		return self
 	
 	## Add a delay on this tween before it should start.
 	## Returns self.
-	func delay(seconds: float) -> cTween:
+	func delay(seconds: float) -> gdTween:
 		self._delay += seconds
 		return self
 	
 	## Start another tween with the same delay as this one.
 	## Returns new tween.
-	func at(obj: Object, seconds: float, key_values: Dictionary) -> cTween:
+	func at(obj: Object, seconds: float, key_values: Dictionary) -> gdTween:
 		return self.lib.to(obj, seconds, key_values).delay(self._delay)
 	
 	## Start another tween with delay equal to this tweens delay + this tweens duration
 	## Returns new tween.
-	func after(obj: Object, seconds: float, key_values: Dictionary) -> cTween:
+	func after(obj: Object, seconds: float, key_values: Dictionary) -> gdTween:
 		return self.lib.to(obj, seconds, key_values).delay(self._delay + self.target_time)
 	
 	## Call all FuncRefs in given array.
@@ -511,7 +511,7 @@ class cTween:
 	## Checks all active tweens and deletes them if there are any 
 	## This will be called automatically by Tweener.
 	func deleteClashingTweens() -> void:
-		for tween in self.lib.active_cTweens:
+		for tween in self.lib.active_gdTweens:
 			if tween == self or tween.object != self.object or tween.first_time_tween_runs:
 				continue
 			for key in tween.end_values.keys():
@@ -555,25 +555,22 @@ class cTween:
 ## Seconds is how long the tween should take.
 ## Key_values is a dictionary of string-float pairs that decide what the final values
 ## of the object will be when the tween is complete.
-func to(obj: Object, seconds: float, key_values: Dictionary) -> cTween:
-	var tween = cTween.new(obj, seconds, key_values, self)
-	self.active_cTweens.append(tween)
+func to(obj: Object, seconds: float, key_values: Dictionary) -> gdTween:
+	var tween = gdTween.new(obj, seconds, key_values, self)
+	self.active_gdTweens.append(tween)
 	return tween
 
 func _process(delta):
-	for tween in active_cTweens:
+	for tween in active_gdTweens:
 		tween.update(delta)
 	
 	# deletion algorithm
 	var del_count = 0
-	for i in range(active_cTweens.size()):
-		var tween = active_cTweens[i]
+	for i in range(active_gdTweens.size()):
+		var tween = active_gdTweens[i]
 		if tween.delete:
 			del_count += 1
 		else:
-			active_cTweens[i-del_count] = tween
+			active_gdTweens[i-del_count] = tween
 	for _i in range(del_count):
-		active_cTweens.pop_back()
-
-func numActiveTweens():
-	return active_cTweens.size()
+		active_gdTweens.pop_back()
