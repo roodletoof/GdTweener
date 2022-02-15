@@ -456,6 +456,10 @@ class gdTween:
 		self.on_complete_funcRefs.append(function)
 		return self
 	
+	func queueFreeOnComplete() -> gdTween:
+		self.on_complete_funcRefs.append(funcref(self.object.get_ref(), 'queue_free'))
+		return self
+	
 	## Set the easing function used for this tween.
 	## The default is 'outQuad'
 	## Returns self.
@@ -550,6 +554,27 @@ class gdTween:
 			self.callFuncRefList(on_complete_funcRefs)
 			self.stop()
 
+## Dummy gdTween object to make using the gdTweener module easier in for loops
+class gdTweenDummy:
+	var duration: float
+	var delay: float
+	var lib: gdTweener;
+	
+	func _init(fake_duration: float, fake_delay: float, library: gdTweener):
+		self.duration = fake_duration
+		self.delay = fake_delay
+		self.lib = library
+	
+	## Start another tween with the same delay as this fake one.
+	## Returns new tween.
+	func at(obj: Object, seconds: float, key_values: Dictionary) -> gdTween:
+		return self.lib.to(obj, seconds, key_values).delay(self.delay)
+	
+	## Start another tween with delay equal to this fake tweens delay + this tweens duration
+	## Returns new tween.
+	func after(obj: Object, seconds: float, key_values: Dictionary) -> gdTween:
+		return self.lib.to(obj, seconds, key_values).delay(self.delay + self.duration)
+
 ## Start and return a tween.
 ## Obj is the object wich contains the values you want to tween.
 ## Seconds is how long the tween should take.
@@ -559,6 +584,12 @@ func to(obj: Object, seconds: float, key_values: Dictionary) -> gdTween:
 	var tween = gdTween.new(obj, seconds, key_values, self)
 	self.active_gdTweens.append(tween)
 	return tween
+
+## Create a dummy tween object.
+## Has methods: at, and after.
+## Exists to make using gdTweens easier in for-loops.
+func dummy(fake_duration: float, fake_delay: float):
+	return gdTweenDummy.new(fake_duration, fake_delay, self)
 
 func _process(delta):
 	for tween in active_gdTweens:
