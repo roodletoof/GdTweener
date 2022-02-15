@@ -456,6 +456,7 @@ class gdTween:
 		self.on_complete_funcRefs.append(function)
 		return self
 	
+	## Call queue_free on the object this gdTween is tweening when this tween is complete.
 	func queueFreeOnComplete() -> gdTween:
 		self.on_complete_funcRefs.append(funcref(self.object.get_ref(), 'queue_free'))
 		return self
@@ -471,6 +472,13 @@ class gdTween:
 	## Returns self.
 	func delay(seconds: float) -> gdTween:
 		self._delay += seconds
+		return self
+	
+	## Manually set start values.
+	## Start values not set will be set automatically when the tween starts.
+	## Returns self.
+	func startValues(key_values: Dictionary) -> gdTween:
+		self.start_values = key_values
 		return self
 	
 	## Start another tween with the same delay as this one.
@@ -499,9 +507,10 @@ class gdTween:
 	
 	## Set tween start values to the current values corresponding to all the given keys.
 	## This will be called automatically by Tweener.
-	func setStartValues() -> void:
+	func autoSetStartValues() -> void:
 		for key in self.end_values.keys():
-			start_values[key] = self.object.get_ref().get(key)
+			if not start_values.has(key):
+				start_values[key] = self.object.get_ref().get(key)
 	
 	## Update object values based on given completion factor.
 	## This will be called automatically by Tweener.
@@ -538,7 +547,7 @@ class gdTween:
 		
 		if self.first_time_tween_runs:
 			dt -= self._delay
-			self.setStartValues()
+			self.autoSetStartValues()
 			self.deleteClashingTweens()
 			self.callFuncRefList(on_start_funcRefs)
 			self.first_time_tween_runs = false
@@ -587,7 +596,7 @@ func to(obj: Object, seconds: float, key_values: Dictionary) -> gdTween:
 
 ## Create a dummy tween object.
 ## Has methods: at, and after.
-## Exists to make using gdTweens easier in for-loops.
+## Exists to make multiple offset gdTweens easier in for-loops.
 func dummy(fake_duration: float, fake_delay: float):
 	return gdTweenDummy.new(fake_duration, fake_delay, self)
 
