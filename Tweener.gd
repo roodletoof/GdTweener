@@ -268,6 +268,8 @@ class gdTween:
 	## update the tween.
 	## This will be called automatically by Tweener.
 	func update(dt: float) -> void:
+		if self.delete: return
+		
 		if !self.object.get_ref():
 			self.stop()
 			return
