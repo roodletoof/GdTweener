@@ -299,23 +299,51 @@ class gdTween:
 ## Dummy gdTween object to make using the gdTweener module easier in for loops
 class gdTweenDummy:
 	var duration: float
-	var delay: float
+	var delay_: float
 	var lib: gdTweener;
 	
 	func _init(fake_duration: float, fake_delay: float, library: gdTweener):
 		self.duration = fake_duration
-		self.delay = fake_delay
+		self.delay_ = fake_delay
 		self.lib = library
 	
 	## Start another tween with the same delay as this fake one.
 	## Returns new tween.
 	func at(obj: Object, seconds: float, key_values: Dictionary) -> gdTween:
-		return self.lib.to(obj, seconds, key_values).delay(self.delay)
+		return self.lib.to(obj, seconds, key_values).delay(self.delay_)
 	
 	## Start another tween with delay equal to this fake tweens delay + this tweens duration
 	## Returns new tween.
 	func after(obj: Object, seconds: float, key_values: Dictionary) -> gdTween:
-		return self.lib.to(obj, seconds, key_values).delay(self.delay + self.duration)
+		return self.lib.to(obj, seconds, key_values).delay(self.delay_ + self.duration)
+	
+	## add delay to the dummy tween
+	func delay(seconds: float) -> gdTweenDummy:
+		self.delay_ += seconds
+		return self
+	
+	# Dummy functions
+	
+	func stop() -> void: pass
+	
+# warning-ignore:unused_argument
+	func onStart(function: FuncRef) -> gdTweenDummy: return self
+	
+# warning-ignore:unused_argument
+	func onUpdate(function: FuncRef) -> gdTweenDummy: return self
+	
+# warning-ignore:unused_argument
+	func onComplete(function: FuncRef) -> gdTweenDummy: return self
+	
+	func queueFreeOnComplete() -> gdTweenDummy: return self
+	
+# warning-ignore:unused_argument
+	func ease(ease_function_name: String) -> gdTweenDummy: return self
+	
+	
+# warning-ignore:unused_argument
+	func startValues(key_values: Dictionary) -> gdTweenDummy: return self
+	
 
 ## Start and return a tween.
 ## Obj is the object wich contains the values you want to tween.
@@ -330,7 +358,7 @@ func to(obj: Object, seconds: float, key_values: Dictionary) -> gdTween:
 ## Create a dummy tween object.
 ## Has methods: at, and after.
 ## Exists to make multiple offset gdTweens easier in for-loops.
-func dummy(fake_duration: float, fake_delay: float):
+func dummy(fake_duration: float = 0.0, fake_delay: float = 0.0):
 	return gdTweenDummy.new(fake_duration, fake_delay, self)
 
 func _process(delta):
