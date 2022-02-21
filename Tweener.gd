@@ -132,7 +132,7 @@ func inOutBounce(t: float) -> float:
 	return __inout(t, 'inBounce', 'outBounce')
 
 ## list of all active cTweens
-var active_gdTweens := []
+const active_gdTweens := []
 
 ## Object that keeps track of object values and changes them according to time passed.
 class gdTween:
