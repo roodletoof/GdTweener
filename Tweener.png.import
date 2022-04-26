@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/Tweener.png-638c26872005a3a66c5cfad0eabc16ee.stex"
+path="res://.import/Tweener.png-a9ccb24970b54380f10ab3ac221a5dad.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://gdTweener/Tweener.png"
-dest_files=[ "res://.import/Tweener.png-638c26872005a3a66c5cfad0eabc16ee.stex" ]
+source_file="res://GdTweener/Tweener.png"
+dest_files=[ "res://.import/Tweener.png-a9ccb24970b54380f10ab3ac221a5dad.stex" ]
 
 [params]
 
