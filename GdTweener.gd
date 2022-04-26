@@ -139,8 +139,6 @@ func inOutElastic(t: float) -> float:
 func inOutBounce(t: float) -> float:
 	return __inout(t, 'inBounce', 'outBounce')
 
-## list of all active cTweens
-const active_GdTweens := []
 
 ## Object that keeps track of __object values and changes them according to time passed.
 class GdTween:
@@ -149,7 +147,7 @@ class GdTween:
 	var __target_time: float
 	var __end_values: Dictionary
 	var __start_values: Dictionary
-	var __lib: gdTweener
+	var __lib: GdTweener
 	var __ease_type := 'outQuad'
 	var __delete := false
 	var __delay := 0.0
@@ -158,33 +156,33 @@ class GdTween:
 	var __on_update_funcRefs := []
 	var __on_complete_funcRefs := []
 	
-	func _init(obj: Object, seconds: float, key_values: Dictionary, library: gdTweener):
-		self.__object = weakref(obj)
-		self.__target_time = seconds
-		self.__end_values = key_values
-		self.__lib = library
+	func _init(obj: Object, seconds: float, key_values: Dictionary, library: GdTweener):
+		__object = weakref(obj)
+		__target_time = seconds
+		__end_values = key_values
+		__lib = library
 	
 	## Mark this cTween for deletion, and remove all references to other objects
 	func stop() -> void:
-		self.__delete = true
-		self.__lib = null
-		self.__object = null
-		self.__on_start_funcRefs.clear()
-		self.__on_update_funcRefs.clear()
-		self.__on_complete_funcRefs.clear()
+		__delete = true
+		__lib = null
+		__object = null
+		__on_start_funcRefs.clear()
+		__on_update_funcRefs.clear()
+		__on_complete_funcRefs.clear()
 	
 	## Add a function reference that will be called when this tween starts.
 	## The function will be called with no arguments.
 	## Returns self.
 	func onStart(function: FuncRef) -> GdTween:
-		self.__on_start_funcRefs.append(function)
+		__on_start_funcRefs.append(function)
 		return self
 	
 	## Add a function reference that will be called once per __update.
 	## The function will be called with the 'dt' argument.
 	## Returns self.
 	func onUpdate(function: FuncRef) -> GdTween:
-		self.__on_update_funcRefs.append(function)
+		__on_update_funcRefs.append(function)
 		return self
 	
 	## Add a function reference that will be called on completion.
@@ -192,19 +190,19 @@ class GdTween:
 	## The function will be called with no arguments.
 	## Returns self.
 	func onComplete(function: FuncRef) -> GdTween:
-		self.__on_complete_funcRefs.append(function)
+		__on_complete_funcRefs.append(function)
 		return self
 	
 	## Call queue_free on the __object this gdTween is tweening when this tween is complete.
 	func queueFreeOnComplete() -> GdTween:
-		self.__on_complete_funcRefs.append(funcref(self.__object.get_ref(), 'queue_free'))
+		__on_complete_funcRefs.append(funcref(__object.get_ref(), 'queue_free'))
 		return self
 	
 	## Set the easing function used for this tween.
 	## The default is 'outQuad'
 	## Returns self.
 	func ease(ease_function_name: String) -> GdTween:
-		self.__ease_type = ease_function_name
+		__ease_type = ease_function_name
 		return self
 	
 	## Add a delay on this tween before it should start.
@@ -212,60 +210,60 @@ class GdTween:
 	## This allows a tween started by GdTween.after() to start at some time before this GdTween ends.
 	## Returns self.
 	func delay(seconds: float) -> GdTween:
-		self.__delay += seconds
+		__delay += seconds
 		return self
 	
 	## Manually set start values.
 	## Start values not set will be set automatically when the tween starts.
 	## Returns self.
 	func startValues(key_values: Dictionary) -> GdTween:
-		self.__start_values = key_values
+		__start_values = key_values
 		return self
 	
 	## Start another tween with the same delay as this one.
 	## Returns new tween.
 	func at(obj: Object, seconds: float, key_values: Dictionary) -> GdTween:
-		return self.__lib.to(obj, seconds, key_values).delay(self.__delay)
+		return __lib.to(obj, seconds, key_values).delay(__delay)
 	
 	## Start another tween with delay equal to this tweens delay + this tweens duration
 	## Returns new tween.
 	func after(obj: Object, seconds: float, key_values: Dictionary) -> GdTween:
-		return self.__lib.to(obj, seconds, key_values).delay(self.__delay + self.__target_time)
+		return __lib.to(obj, seconds, key_values).delay(__delay + __target_time)
 	
 	## Call all FuncRefs in given array.
 	## This will be called automatically by Tweener.
 	func __callFuncRefList(FuncRefs: Array) -> void:
-		if !self.__object.get_ref(): return
+		if !__object.get_ref(): return
 		for f in FuncRefs:
 			f.call_func()
 	
 	## Call all FuncRefs __update function array.
 	## This will be called automatically by Tweener.
 	func __callOnUpdateFuncRefs(dt: float) -> void:
-		if !self.__object.get_ref(): return
-		for f in self.__on_update_funcRefs:
+		if !__object.get_ref(): return
+		for f in __on_update_funcRefs:
 			f.call_func(dt)
 	
 	## Set tween start values to the current values corresponding to all the given keys.
 	## This will be called automatically by Tweener.
 	func __autoSetStartValues() -> void:
-		for key in self.__end_values.keys():
-			if not self.__start_values.has(key):
-				self.__start_values[key] = self.__object.get_ref().get(key)
+		for key in __end_values.keys():
+			if not __start_values.has(key):
+				__start_values[key] = __object.get_ref().get(key)
 	
 	## Update object values based on given completion factor.
 	## This will be called automatically by Tweener.
 	func __updateValues(completion_factor: float) -> void:
-		if !self.__object.get_ref(): return
+		if !__object.get_ref(): return
 		
 		for key in __end_values.keys():
-			var start_end_diff = self.__end_values[key] - self.__start_values[key]
-			self.__object.get_ref().set(key, self.__start_values[key] + start_end_diff * completion_factor)
-	
+			var start_end_diff = __end_values[key] - __start_values[key]
+			__object.get_ref().set(key, __start_values[key] + start_end_diff * completion_factor)
+
 	## Checks all active tweens and deletes them if there are any 
 	## This will be called automatically by Tweener.
 	func __deleteClashingTweens() -> void:
-		for tween in self.__lib.active_GdTweens:
+		for tween in __lib.active_GdTweens:
 			if tween == self or tween.__object != self.__object or tween.__first_time_tween_runs:
 				continue
 			for key in tween.__end_values.keys():
@@ -275,85 +273,41 @@ class GdTween:
 	
 	var __first_time_tween_runs := true
 	
-	## __update the tween.
+	## update the tween.
 	## This will be called automatically by Tweener.
 	func __update(dt: float) -> void:
-		if self.__delete: return
+		if __delete: return
 		
-		if !self.__object.get_ref():
-			self.stop()
+		if !__object.get_ref():
+			stop()
 			return
 		
-		if self.__delay > 0:
-			self.__delay -= dt
+		if __delay > 0:
+			__delay -= dt
 			return
 		
-		if self.___first_time_tween_runs:
-			dt -= self.__delay
-			self.__autoSetStartValues()
-			self.__deleteClashingTweens()
-			self.__callFuncRefList(__on_start_funcRefs)
-			self.__first_time_tween_runs = false
+		if __first_time_tween_runs:
+			dt -= __delay
+			__autoSetStartValues()
+			__deleteClashingTweens()
+			__callFuncRefList(__on_start_funcRefs)
+			__first_time_tween_runs = false
 		
-		self.__callOnUpdateFuncRefs(dt)
+		__callOnUpdateFuncRefs(dt)
 		
-		self.__curr_time += dt
+		__curr_time += dt
 		
-		var completion_factor = self.__lib.call(self.ease_type, self.__curr_time / self.target_time)
-		self.__updateValues(completion_factor)
+		var completion_factor = __lib.call(__ease_type, __curr_time / __target_time)
+		__updateValues(completion_factor)
 		
-		if self.__curr_time >= self.target_time:
-			self.__callFuncRefList(self.__on_complete_funcRefs)
-			self.stop()
+		if __curr_time >= __target_time:
+			__callFuncRefList(__on_complete_funcRefs)
+			stop()
+	
+	func get_class() -> String: return 'GdTween'
 
-## Dummy GdTween __object to make using the gdTweener module easier in for loops
-class GdTweenDummy:
-	var duration: float
-	var delay_: float
-	var lib: gdTweener;
-	
-	func _init(fake_duration: float, fake_delay: float, library: gdTweener):
-		self.duration = fake_duration
-		self.delay_ = fake_delay
-		self.lib = library
-	
-	## Start another tween with the same delay as this fake one.
-	## Returns new tween.
-	func at(obj: Object, seconds: float, key_values: Dictionary) -> GdTween:
-		return self.lib.to(obj, seconds, key_values).delay(self.delay_)
-	
-	## Start another tween with delay equal to this fake tweens delay + this tweens duration
-	## Returns new tween.
-	func after(obj: Object, seconds: float, key_values: Dictionary) -> GdTween:
-		return self.lib.to(obj, seconds, key_values).delay(self.delay_ + self.duration)
-	
-	## add delay to the dummy tween
-	func delay(seconds: float) -> GdTweenDummy:
-		self.delay_ += seconds
-		return self
-	
-	# Dummy functions
-	
-	func stop() -> void: pass
-	
-# warning-ignore:unused_argument
-	func onStart(function: FuncRef) -> GdTweenDummy: return self
-	
-# warning-ignore:unused_argument
-	func onUpdate(function: FuncRef) -> GdTweenDummy: return self
-	
-# warning-ignore:unused_argument
-	func onComplete(function: FuncRef) -> GdTweenDummy: return self
-	
-	func queueFreeOnComplete() -> GdTweenDummy: return self
-	
-# warning-ignore:unused_argument
-	func ease(ease_function_name: String) -> GdTweenDummy: return self
-	
-	
-# warning-ignore:unused_argument
-	func startValues(key_values: Dictionary) -> GdTweenDummy: return self
-	
+## list of all active GdTweens
+const active_GdTweens := []
 
 ## Start and return a tween.
 ## Obj is the object wich contains the values you want to tween.
@@ -362,14 +316,19 @@ class GdTweenDummy:
 ## of the Obj will be when the tween is complete.
 func to(obj: Object, seconds: float, key_values: Dictionary) -> GdTween:
 	var tween = GdTween.new(obj, seconds, key_values, self)
-	self.active_gdTweens.append(tween)
+	active_GdTweens.append(tween)
 	return tween
 
-## Create a dummy tween __object.
-## Has methods: at, and after.
+## This is just here to be passed into a GdTween as a dummy object.
+class Nothing:
+	pass
+var __nothing := Nothing.new()
+
+## Create a dummy GdTween object.
+## Has all the same methods, but does not actually tween anything.
 ## Exists to make multiple offset gdTweens easier in for-loops.
-func dummy(fake_duration: float = 0.0, fake_delay: float = 0.0) -> GdTweenDummy:
-	return GdTweenDummy.new(fake_duration, fake_delay, self)
+func dummy(fake_duration: float = 0.0, fake_delay: float = 0.0) -> GdTween:
+	return GdTween.new(__nothing, 0, {}, self)
 
 func _process(delta):
 	for tween in active_GdTweens:
@@ -378,10 +337,12 @@ func _process(delta):
 	# deletion algorithm
 	var del_count = 0
 	for i in range(active_GdTweens.size()):
-		var tween = active_GdTweens[i]
+		
+		var tween: GdTween = active_GdTweens[i]
 		if tween.__delete:
 			del_count += 1
 		else:
 			active_GdTweens[i-del_count] = tween
+	
 	for _i in range(del_count):
 		active_GdTweens.pop_back()
